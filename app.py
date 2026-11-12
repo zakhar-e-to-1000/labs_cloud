@@ -1,20 +1,25 @@
 import os
+from typing import Optional
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped, mapped_column
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["DATABASE_URL"]
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
+class Base(DeclarativeBase):
+  pass
+db = SQLAlchemy(app, model_class=Base)
 
 
 class Film(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    duration = db.Column(db.Integer, nullable=False)
-    reviews = db.Column(db.Integer, default=0)
-    description = db.Column(db.String(600), nullable=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(db.String(200), nullable=False)
+    duration: Mapped[int] = mapped_column(db.Integer, nullable=False)
+    reviews: Mapped[int] = mapped_column(db.Integer, default=0)
+    description: Mapped[Optional[str]] = mapped_column(db.String(600), nullable=True)
 
     def to_dict(self):
         return {
@@ -32,7 +37,8 @@ with app.app_context():
 
 @app.get("/films")
 def list_films():
-    return jsonify([f.to_dict() for f in Film.query.all()])
+    films = db.session.execute(db.select(Film).scalars())
+    return jsonify([f.to_dict() for f in films])
 
 
 @app.post("/films")
