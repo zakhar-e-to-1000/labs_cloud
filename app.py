@@ -37,7 +37,7 @@ with app.app_context():
 
 @app.get("/films")
 def list_films():
-    films = db.session.execute(db.select(Film).scalars())
+    films = db.session.execute(db.select(Film)).scalars()
     return jsonify([f.to_dict() for f in films])
 
 
