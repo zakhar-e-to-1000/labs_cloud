@@ -9,28 +9,36 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
-class Task(db.Model):
+class Film(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
-    done = db.Column(db.Boolean, default=False)
+    duration = db.Column(db.Integer, nullable=False)
+    reviews = db.Column(db.Integer, default=0)
+    description = db.Column(db.db.String(600), nullable=True)
 
     def to_dict(self):
-        return {"id": self.id, "title": self.title, "done": self.done}
+        return {
+            "id": self.id,
+            "title": self.title,
+            "duration": self.done,
+            "reviews": self.reviews,
+            "description": self.description
+        }
 
 
 with app.app_context():
     db.create_all()  # створює таблиці, якщо їх ще немає
 
 
-@app.get("/tasks")
-def list_tasks():
-    return jsonify([t.to_dict() for t in Task.query.all()])
+@app.get("/films")
+def list_films():
+    return jsonify([f.to_dict() for f in Film.query.all()])
 
 
-@app.post("/tasks")
-def create_task():
+@app.post("/films")
+def create_film():
     data = request.get_json()
-    task = Task(title=data["title"])
-    db.session.add(task)
+    film = Film(title=data["title"], duration=data["duration"], reviews=data["reviews"], description=data["description"])
+    db.session.add(film)
     db.session.commit()
-    return jsonify(task.to_dict()), 201
+    return jsonify(film.to_dict()), 201
