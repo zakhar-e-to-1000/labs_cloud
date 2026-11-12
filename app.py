@@ -58,13 +58,13 @@ def create_film():
     return jsonify(film.to_dict()), 201
 
 
-@app.get('/films/<int:film_id>')
+@app.get('/films/<int:id>')
 def get_film(id):
     film = db.get_or_404(Film, id)
     return jsonify(film.to_dict()), 200
 
 
-@app.delete('/films/<int:film_id>')
+@app.delete('/films/<int:id>')
 def delete_film(id):
     film = db.get_or_404(Film, id)
     db.session.delete(film)
@@ -72,7 +72,7 @@ def delete_film(id):
     return jsonify(film.to_dict()), 204
 
 
-@app.put('/api/films/<int:film_id>')
+@app.put('/films/<int:id>')
 def film_update(id):
     data = request.get_json(silent=True)
     film = db.get_or_404(Film, id)
@@ -84,4 +84,4 @@ def film_update(id):
     film.reviews = data["reviews"]
     film.description = data["description"]
     db.session.commit()
-    db.session.add()
+    return jsonify(film.to_dict()), 200
