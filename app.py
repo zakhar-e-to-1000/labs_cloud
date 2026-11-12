@@ -14,13 +14,13 @@ class Film(db.Model):
     title = db.Column(db.String(200), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     reviews = db.Column(db.Integer, default=0)
-    description = db.Column(db.db.String(600), nullable=True)
+    description = db.Column(db.String(600), nullable=True)
 
     def to_dict(self):
         return {
             "id": self.id,
             "title": self.title,
-            "duration": self.done,
+            "duration": self.duration,
             "reviews": self.reviews,
             "description": self.description
         }
@@ -37,7 +37,9 @@ def list_films():
 
 @app.post("/films")
 def create_film():
-    data = request.get_json()
+    data = request.get_json(silent=True)
+    data.setdefault("reviews", None)
+    data.setdefault("description", None)
     film = Film(title=data["title"], duration=data["duration"], reviews=data["reviews"], description=data["description"])
     db.session.add(film)
     db.session.commit()
